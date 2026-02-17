@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Settings2, Check } from 'lucide-react';
+import { Settings2, Check, Loader2 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { WeatherWidget } from '@/components/widgets/WeatherWidget';
 import { CalendarWidget } from '@/components/widgets/CalendarWidget';
@@ -10,19 +10,21 @@ import { DraggableGrid } from '@/components/dashboard/DraggableGrid';
 import { SortableWidget } from '@/components/dashboard/SortableWidget';
 import { Toaster } from '@/components/ui/sonner';
 import { useDashboardStore } from '@/store/useDashboardStore';
-import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { WidgetType } from '@shared/types';
 export function HomePage() {
   const [now, setNow] = useState(new Date());
-  // Zustand v5 Compliant Selectors - One field per call
-  const widgetOrder = useDashboardStore(useShallow((s) => s.widgetOrder));
+  // Zustand v5 Compliant Selectors - Strictly one primitive field per call
+  // For the array, we join it into a string to ensure it's a primitive and doesn't trigger re-renders/useRef issues
+  const widgetOrderString = useDashboardStore((s) => s.widgetOrder.join(','));
   const isEditMode = useDashboardStore((s) => s.isEditMode);
+  const isLoading = useDashboardStore((s) => s.isLoading);
   const toggleEditMode = useDashboardStore((s) => s.toggleEditMode);
   const fetchSettings = useDashboardStore((s) => s.fetchSettings);
+  const widgetOrder = React.useMemo(() => widgetOrderString.split(',') as WidgetType[], [widgetOrderString]);
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
-    // Initializing with a stable user ID
     fetchSettings('user-1');
     return () => clearInterval(timer);
   }, [fetchSettings]);
@@ -60,13 +62,13 @@ export function HomePage() {
           )}
         >
           {isEditMode ? (
-            <React.Fragment>
+            <>
               <Check className="w-4 h-4 mr-2" /> Done
-            </React.Fragment>
+            </>
           ) : (
-            <React.Fragment>
+            <>
               <Settings2 className="w-4 h-4 mr-2" /> Customize
-            </React.Fragment>
+            </>
           )}
         </Button>
         <ThemeToggle className="relative top-0 right-0" />
@@ -86,13 +88,20 @@ export function HomePage() {
           </div>
         </header>
         {/* Widget Grid */}
-        <DraggableGrid items={widgetOrder}>
-          {widgetOrder.map((type) => (
-            <SortableWidget key={`widget-slot-${type}`} id={type}>
-              {renderWidget(type)}
-            </SortableWidget>
-          ))}
-        </DraggableGrid>
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+            <p className="text-white/40 font-medium animate-pulse">Loading your dashboard...</p>
+          </div>
+        ) : (
+          <DraggableGrid items={widgetOrder}>
+            {widgetOrder.map((type) => (
+              <SortableWidget key={`widget-slot-${type}`} id={type}>
+                {renderWidget(type)}
+              </SortableWidget>
+            ))}
+          </DraggableGrid>
+        )}
       </main>
       <footer className="relative z-10 text-center py-12 opacity-30">
         <p className="text-xs text-white uppercase tracking-[0.2em] font-bold">
