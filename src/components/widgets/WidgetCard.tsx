@@ -21,7 +21,7 @@ export function WidgetCard({ title, icon, children, className, actions }: Widget
     )}>
       {/* Glossy Reflection Overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-      {/* Shimmer Border Effect (Animated on Hover) */}
+      {/* Shimmer Border Effect */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500">
         <div className="absolute inset-0 bg-[length:200%_100%] animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
@@ -58,28 +58,6 @@ export function WidgetCard({ title, icon, children, className, actions }: Widget
           </div>
         </div>
       )}
-      <style jsx global>{`
-        .custom-scrollbar-refined::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar-refined::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
-          margin: 10px;
-          border-radius: 10px;
-        }
-        .custom-scrollbar-refined::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar-refined::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        .glass-light {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-      `}</style>
     </div>
   );
 }

@@ -13,7 +13,7 @@ interface DashboardState {
 }
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   isEditMode: false,
-  widgetOrder: ['weather', 'calendar', 'stocks', 'news'],
+  widgetOrder: ['weather', 'calendar', 'stocks', 'news', 'system', 'quick-actions'],
   isLoading: false,
   userId: 'default-user',
   toggleEditMode: () => set((state) => ({ isEditMode: !state.isEditMode })),

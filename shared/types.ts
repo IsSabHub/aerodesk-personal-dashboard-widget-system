@@ -3,7 +3,7 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
 }
-export type WidgetType = 'weather' | 'calendar' | 'stocks' | 'news';
+export type WidgetType = 'weather' | 'calendar' | 'stocks' | 'news' | 'system' | 'quick-actions';
 export interface DashboardConfig {
   id: string; // userId
   widgetOrder: WidgetType[];

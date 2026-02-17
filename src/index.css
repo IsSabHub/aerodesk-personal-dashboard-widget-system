@@ -16,25 +16,34 @@
   }
 }
 @layer utilities {
-  .custom-scrollbar::-webkit-scrollbar {
+  .custom-scrollbar-refined::-webkit-scrollbar {
     width: 4px;
   }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+  .custom-scrollbar-refined::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    margin: 10px;
+    border-radius: 10px;
   }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
+  .custom-scrollbar-refined::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
   }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  .custom-scrollbar-refined::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.2);
+  }
+  .glass-light {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .glass-button {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/15 active:bg-white/20 transition-all duration-200 rounded-2xl;
+  }
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
   }
 }
 body {
   @apply bg-background text-foreground;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-}
-/* Glassmorphism Overrides */
-.glass-card {
-  @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
 }

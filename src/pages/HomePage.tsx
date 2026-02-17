@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import { Settings2, Check, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { WeatherWidget } from '@/components/widgets/WeatherWidget';
 import { CalendarWidget } from '@/components/widgets/CalendarWidget';
 import { NewsWidget } from '@/components/widgets/NewsWidget';
 import { StockWidget } from '@/components/widgets/StockWidget';
+import { SystemWidget } from '@/components/widgets/SystemWidget';
+import { QuickActionsWidget } from '@/components/widgets/QuickActionsWidget';
 import { DraggableGrid } from '@/components/dashboard/DraggableGrid';
 import { SortableWidget } from '@/components/dashboard/SortableWidget';
 import { Toaster } from '@/components/ui/sonner';
@@ -15,8 +18,6 @@ import { cn } from '@/lib/utils';
 import type { WidgetType } from '@shared/types';
 export function HomePage() {
   const [now, setNow] = useState(new Date());
-  // Zustand v5 Compliant Selectors - Strictly one primitive field per call
-  // For the array, we join it into a string to ensure it's a primitive and doesn't trigger re-renders/useRef issues
   const widgetOrderString = useDashboardStore((s) => s.widgetOrder.join(','));
   const isEditMode = useDashboardStore((s) => s.isEditMode);
   const isLoading = useDashboardStore((s) => s.isLoading);
@@ -40,6 +41,8 @@ export function HomePage() {
       case 'calendar': return <CalendarWidget />;
       case 'stocks': return <StockWidget />;
       case 'news': return <NewsWidget />;
+      case 'system': return <SystemWidget />;
+      case 'quick-actions': return <QuickActionsWidget />;
       default: return null;
     }
   };
@@ -57,25 +60,26 @@ export function HomePage() {
           size="sm"
           onClick={toggleEditMode}
           className={cn(
-            "bg-white/5 backdrop-blur-md border-white/10 text-white hover:bg-white/10 transition-all",
+            "bg-white/5 backdrop-blur-md border-white/10 text-white hover:bg-white/10 transition-all glass-button",
             isEditMode && "bg-blue-500/20 border-blue-500/50 hover:bg-blue-500/30"
           )}
         >
           {isEditMode ? (
-            <>
-              <Check className="w-4 h-4 mr-2" /> Done
-            </>
+            <><Check className="w-4 h-4 mr-2" /> Done</>
           ) : (
-            <>
-              <Settings2 className="w-4 h-4 mr-2" /> Customize
-            </>
+            <><Settings2 className="w-4 h-4 mr-2" /> Customize</>
           )}
         </Button>
         <ThemeToggle className="relative top-0 right-0" />
       </div>
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12 md:py-20 lg:py-24">
         {/* Header */}
-        <header className="mb-12 animate-fade-in">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mb-12"
+        >
           <div className="space-y-2">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white/90">
               {getGreeting()}, <span className="text-blue-400">Explorer</span>
@@ -86,7 +90,7 @@ export function HomePage() {
               <span className="tabular-nums">{format(now, 'HH:mm:ss')}</span>
             </div>
           </div>
-        </header>
+        </motion.header>
         {/* Widget Grid */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
@@ -105,7 +109,7 @@ export function HomePage() {
       </main>
       <footer className="relative z-10 text-center py-12 opacity-30">
         <p className="text-xs text-white uppercase tracking-[0.2em] font-bold">
-          AeroDesk &copy; {now.getFullYear()} &bull; Personal Dashboard
+          AeroDesk &copy; {now.getFullYear()} &bull; Aesthetic OS
         </p>
       </footer>
       <Toaster richColors closeButton theme="dark" />
