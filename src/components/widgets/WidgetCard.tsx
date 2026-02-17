@@ -21,15 +21,11 @@ export function WidgetCard({ title, icon, children, className, actions }: Widget
     )}>
       {/* Glossy Reflection Overlay */}
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 pointer-events-none opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-      {/* Shimmer Border Effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500">
-        <div className="absolute inset-0 bg-[length:200%_100%] animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </div>
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/[0.02]">
+      <div className="relative z-10 flex items-center justify-between px-6 py-5 border-b border-white/5 bg-white/[0.05] backdrop-blur-md">
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="p-2 rounded-xl bg-white/5 text-white/70 group-hover:text-white transition-colors glass-light">
+            <div className="p-2 rounded-xl bg-white/10 text-white/70 group-hover:text-white transition-colors border border-white/10 shadow-sm">
               {icon}
             </div>
           )}
@@ -45,7 +41,7 @@ export function WidgetCard({ title, icon, children, className, actions }: Widget
       </div>
       {/* Content Area */}
       <div className={cn(
-        "relative z-10 flex-1 p-6 overflow-y-auto custom-scrollbar-refined",
+        "relative z-10 flex-1 p-6 overflow-y-auto custom-scrollbar-refined scrollbar-gutter-stable",
         isEditMode && "pointer-events-none select-none grayscale-[0.5] opacity-50"
       )}>
         {children}

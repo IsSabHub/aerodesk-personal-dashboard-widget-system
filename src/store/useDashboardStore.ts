@@ -11,9 +11,10 @@ interface DashboardState {
   fetchSettings: (userId: string) => Promise<void>;
   saveSettings: () => Promise<void>;
 }
+const DEFAULT_ORDER: WidgetType[] = ['weather', 'calendar', 'stocks', 'news', 'system', 'quick-actions'];
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   isEditMode: false,
-  widgetOrder: ['weather', 'calendar', 'stocks', 'news', 'system', 'quick-actions'],
+  widgetOrder: DEFAULT_ORDER,
   isLoading: false,
   userId: 'default-user',
   toggleEditMode: () => set((state) => ({ isEditMode: !state.isEditMode })),
@@ -25,9 +26,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
       const data = await api<DashboardConfig>(`/api/settings/${userId}`);
       if (data && Array.isArray(data.widgetOrder) && data.widgetOrder.length > 0) {
         set({ widgetOrder: data.widgetOrder });
+      } else {
+        set({ widgetOrder: DEFAULT_ORDER });
       }
     } catch (error) {
-      console.error(`[DashboardStore] Failed to fetch settings for ${userId}:`, error);
+      console.warn(`[DashboardStore] Error fetching settings for ${userId}, falling back to defaults.`);
+      set({ widgetOrder: DEFAULT_ORDER });
     } finally {
       set({ isLoading: false });
     }

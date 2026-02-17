@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer, YAxis } from 'recharts';
 export function SystemWidget() {
+  const [hasMounted, setHasMounted] = useState(false);
   const [metrics, setMetrics] = useState({
     cpu: 42,
     ram: 68,
@@ -15,20 +16,24 @@ export function SystemWidget() {
     Array.from({ length: 20 }, (_, i) => ({ time: i, cpu: 40, ram: 60 }))
   );
   useEffect(() => {
+    setHasMounted(true);
     const interval = setInterval(() => {
-      const nextCpu = Math.max(10, Math.min(95, metrics.cpu + (Math.random() - 0.5) * 15));
-      const nextRam = Math.max(40, Math.min(90, metrics.ram + (Math.random() - 0.5) * 2));
-      setMetrics(prev => ({
-        ...prev,
-        cpu: nextCpu,
-        ram: nextRam,
-        network: Math.max(1, Math.min(100, prev.network + (Math.random() - 0.5) * 10)),
-        temp: Math.max(30, Math.min(80, prev.temp + (Math.random() - 0.5) * 4))
-      }));
-      setHistory(prev => [...prev.slice(1), { time: Date.now(), cpu: nextCpu, ram: nextRam }]);
+      setMetrics(prev => {
+        const nextCpu = Math.max(10, Math.min(95, prev.cpu + (Math.random() - 0.5) * 15));
+        const nextRam = Math.max(40, Math.min(90, prev.ram + (Math.random() - 0.5) * 2));
+        const nextNetwork = Math.max(1, Math.min(100, prev.network + (Math.random() - 0.5) * 10));
+        const nextTemp = Math.max(30, Math.min(80, prev.temp + (Math.random() - 0.5) * 4));
+        setHistory(h => [...h.slice(1), { time: Date.now(), cpu: nextCpu, ram: nextRam }]);
+        return {
+          cpu: nextCpu,
+          ram: nextRam,
+          network: nextNetwork,
+          temp: nextTemp
+        };
+      });
     }, 2000);
     return () => clearInterval(interval);
-  }, [metrics]);
+  }, []);
   const MetricRow = ({ icon: Icon, label, value, unit, colorClass, percent }: any) => (
     <div className="space-y-2 group/metric">
       <div className="flex items-center justify-between">
@@ -73,13 +78,17 @@ export function SystemWidget() {
           </div>
         </div>
         <div className="h-16 w-full opacity-50">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={history}>
-              <Area type="monotone" dataKey="cpu" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} />
-              <Area type="monotone" dataKey="ram" stroke="#a855f7" fill="#a855f7" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} />
-              <YAxis domain={[0, 100]} hide />
-            </AreaChart>
-          </ResponsiveContainer>
+          {hasMounted ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={history}>
+                <Area type="monotone" dataKey="cpu" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} />
+                <Area type="monotone" dataKey="ram" stroke="#a855f7" fill="#a855f7" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} />
+                <YAxis domain={[0, 100]} hide />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full bg-white/5 rounded animate-pulse" />
+          )}
         </div>
         <div className="space-y-4 px-1">
           <MetricRow icon={Network} label="Network" value={metrics.network} unit=" Mb/s" colorClass="text-blue-400" percent={metrics.network} />

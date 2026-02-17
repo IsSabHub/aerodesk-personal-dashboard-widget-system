@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
-import { Settings2, Check, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Settings2, Check, Loader2, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { WeatherWidget } from '@/components/widgets/WeatherWidget';
 import { CalendarWidget } from '@/components/widgets/CalendarWidget';
@@ -18,12 +18,11 @@ import { cn } from '@/lib/utils';
 import type { WidgetType } from '@shared/types';
 export function HomePage() {
   const [now, setNow] = useState(new Date());
-  const widgetOrderString = useDashboardStore((s) => s.widgetOrder.join(','));
+  const widgetOrder = useDashboardStore((s) => s.widgetOrder);
   const isEditMode = useDashboardStore((s) => s.isEditMode);
   const isLoading = useDashboardStore((s) => s.isLoading);
   const toggleEditMode = useDashboardStore((s) => s.toggleEditMode);
   const fetchSettings = useDashboardStore((s) => s.fetchSettings);
-  const widgetOrder = React.useMemo(() => widgetOrderString.split(',') as WidgetType[], [widgetOrderString]);
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     fetchSettings('user-1');
@@ -58,6 +57,7 @@ export function HomePage() {
         <Button
           variant="outline"
           size="sm"
+          disabled={isLoading}
           onClick={toggleEditMode}
           className={cn(
             "bg-white/5 backdrop-blur-md border-white/10 text-white hover:bg-white/10 transition-all glass-button",
@@ -72,40 +72,64 @@ export function HomePage() {
         </Button>
         <ThemeToggle className="relative top-0 right-0" />
       </div>
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12 md:py-20 lg:py-24">
-        {/* Header */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mb-12"
-        >
-          <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white/90">
-              {getGreeting()}, <span className="text-blue-400">Explorer</span>
-            </h1>
-            <div className="flex items-center gap-3 text-lg text-white/40 font-medium">
-              <span>{format(now, 'EEEE, MMMM do')}</span>
-              <span className="w-1 h-1 rounded-full bg-white/20" />
-              <span className="tabular-nums">{format(now, 'HH:mm:ss')}</span>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-8 md:py-12 lg:py-16">
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mb-12"
+          >
+            <div className="space-y-2">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white/90">
+                {getGreeting()}, <span className="text-blue-400">Explorer</span>
+              </h1>
+              <div className="flex items-center gap-3 text-lg text-white/40 font-medium">
+                <span>{format(now, 'EEEE, MMMM do')}</span>
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="tabular-nums">{format(now, 'HH:mm:ss')}</span>
+              </div>
             </div>
-          </div>
-        </motion.header>
-        {/* Widget Grid */}
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
-            <p className="text-white/40 font-medium animate-pulse">Loading your dashboard...</p>
-          </div>
-        ) : (
-          <DraggableGrid items={widgetOrder}>
-            {widgetOrder.map((type) => (
-              <SortableWidget key={`widget-slot-${type}`} id={type}>
-                {renderWidget(type)}
-              </SortableWidget>
-            ))}
-          </DraggableGrid>
-        )}
+          </motion.header>
+          {/* Widget Grid */}
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <motion.div 
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center min-h-[400px] space-y-4"
+              >
+                <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                <p className="text-white/40 font-medium animate-pulse">Initializing AeroDesk...</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="grid"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <DraggableGrid items={widgetOrder}>
+                  {widgetOrder.map((type, idx) => (
+                    <motion.div
+                      key={`motion-wrapper-${type}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.1, duration: 0.5 }}
+                    >
+                      <SortableWidget id={type}>
+                        {renderWidget(type)}
+                      </SortableWidget>
+                    </motion.div>
+                  ))}
+                </DraggableGrid>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </main>
       <footer className="relative z-10 text-center py-12 opacity-30">
         <p className="text-xs text-white uppercase tracking-[0.2em] font-bold">

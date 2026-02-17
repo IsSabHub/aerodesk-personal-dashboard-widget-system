@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { WidgetCard } from './WidgetCard';
 import { cn } from '@/lib/utils';
-import { LineChart, Line, ResponsiveContainer, YAxis, Area, AreaChart } from 'recharts';
+import { ResponsiveContainer, YAxis, Area, AreaChart } from 'recharts';
 interface StockData {
   symbol: string;
   value: number;
@@ -11,19 +11,21 @@ interface StockData {
   history: { time: number; price: number }[];
 }
 export function StockWidget() {
+  const [hasMounted, setHasMounted] = useState(false);
   const [markets, setMarkets] = useState<StockData[]>([
     { symbol: 'S&P 500', value: 5241.53, change: 0.85, up: true, history: Array.from({ length: 15 }, (_, i) => ({ time: i, price: 5241.53 })) },
     { symbol: 'NASDAQ', value: 16428.82, change: 1.12, up: true, history: Array.from({ length: 15 }, (_, i) => ({ time: i, price: 16428.82 })) },
     { symbol: 'AAPL', value: 172.62, change: -0.45, up: false, history: Array.from({ length: 15 }, (_, i) => ({ time: i, price: 172.62 })) },
   ]);
   useEffect(() => {
+    setHasMounted(true);
     const interval = setInterval(() => {
       setMarkets(prev => prev.map(m => {
         const fluctuation = (Math.random() - 0.5) * 2.0;
-        const newValue = m.value + fluctuation;
+        const newValue = Math.max(1, m.value + fluctuation);
         const newHistory = [...m.history.slice(1), { time: Date.now(), price: newValue }];
-        const initialPrice = m.history[0].price;
-        const newChange = ((newValue - initialPrice) / initialPrice) * 100;
+        const initialPrice = m.history[0]?.price || newValue;
+        const newChange = initialPrice !== 0 ? ((newValue - initialPrice) / initialPrice) * 100 : 0;
         return {
           ...m,
           value: newValue,
@@ -60,26 +62,30 @@ export function StockWidget() {
                 </div>
               </div>
               <div className="h-8 w-24 mx-2">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={m.history}>
-                    <defs>
-                      <linearGradient id={`gradient-${m.symbol}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={m.up ? "#4ade80" : "#f87171"} stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor={m.up ? "#4ade80" : "#f87171"} stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <Area 
-                      type="monotone" 
-                      dataKey="price" 
-                      stroke={m.up ? "#4ade80" : "#f87171"} 
-                      fillOpacity={1} 
-                      fill={`url(#gradient-${m.symbol})`} 
-                      strokeWidth={2}
-                      isAnimationActive={false}
-                    />
-                    <YAxis domain={['auto', 'auto']} hide />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {hasMounted ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={m.history}>
+                      <defs>
+                        <linearGradient id={`gradient-${m.symbol}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={m.up ? "#4ade80" : "#f87171"} stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor={m.up ? "#4ade80" : "#f87171"} stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <Area
+                        type="monotone"
+                        dataKey="price"
+                        stroke={m.up ? "#4ade80" : "#f87171"}
+                        fillOpacity={1}
+                        fill={`url(#gradient-${m.symbol})`}
+                        strokeWidth={2}
+                        isAnimationActive={false}
+                      />
+                      <YAxis domain={['auto', 'auto']} hide />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="w-full h-full bg-white/5 rounded animate-pulse" />
+                )}
               </div>
               <div className={cn(
                 "flex items-center gap-1 px-2.5 py-1 rounded-lg min-w-[65px] justify-center",
