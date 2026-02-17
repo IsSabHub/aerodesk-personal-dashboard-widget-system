@@ -19,27 +19,29 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   toggleEditMode: () => set((state) => ({ isEditMode: !state.isEditMode })),
   setWidgetOrder: (order: WidgetType[]) => set({ widgetOrder: order }),
   fetchSettings: async (userId: string) => {
+    if (!userId) return;
     set({ isLoading: true, userId });
     try {
       const data = await api<DashboardConfig>(`/api/settings/${userId}`);
-      if (data && data.widgetOrder) {
+      if (data && Array.isArray(data.widgetOrder) && data.widgetOrder.length > 0) {
         set({ widgetOrder: data.widgetOrder });
       }
     } catch (error) {
-      console.error('Failed to fetch settings:', error);
+      console.error(`[DashboardStore] Failed to fetch settings for ${userId}:`, error);
     } finally {
       set({ isLoading: false });
     }
   },
   saveSettings: async () => {
     const { userId, widgetOrder } = get();
+    if (!userId || userId === 'default-user') return;
     try {
       await api(`/api/settings/${userId}`, {
         method: 'POST',
         body: JSON.stringify({ widgetOrder }),
       });
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error(`[DashboardStore] Failed to save settings for ${userId}:`, error);
     }
   },
 }));

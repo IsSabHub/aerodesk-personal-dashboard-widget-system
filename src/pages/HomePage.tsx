@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { format } from 'date-fns';
 import { Settings2, Check } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -10,25 +10,28 @@ import { DraggableGrid } from '@/components/dashboard/DraggableGrid';
 import { SortableWidget } from '@/components/dashboard/SortableWidget';
 import { Toaster } from '@/components/ui/sonner';
 import { useDashboardStore } from '@/store/useDashboardStore';
+import { useShallow } from 'zustand/react/shallow';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 export function HomePage() {
   const [now, setNow] = useState(new Date());
-  const widgetOrder = useDashboardStore((s) => s.widgetOrder);
+  // Zustand v5 Compliant Selectors - One field per call
+  const widgetOrder = useDashboardStore(useShallow((s) => s.widgetOrder));
   const isEditMode = useDashboardStore((s) => s.isEditMode);
   const toggleEditMode = useDashboardStore((s) => s.toggleEditMode);
   const fetchSettings = useDashboardStore((s) => s.fetchSettings);
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
-    fetchSettings('user-1'); // In a real app, this would come from auth
+    // Initializing with a stable user ID
+    fetchSettings('user-1');
     return () => clearInterval(timer);
   }, [fetchSettings]);
-  const getGreeting = () => {
+  const getGreeting = useCallback(() => {
     const hour = now.getHours();
     if (hour < 12) return "Good Morning";
     if (hour < 18) return "Good Afternoon";
     return "Good Evening";
-  };
+  }, [now]);
   const renderWidget = (type: string) => {
     switch (type) {
       case 'weather': return <WeatherWidget />;
@@ -57,13 +60,13 @@ export function HomePage() {
           )}
         >
           {isEditMode ? (
-            <>
+            <React.Fragment>
               <Check className="w-4 h-4 mr-2" /> Done
-            </>
+            </React.Fragment>
           ) : (
-            <>
+            <React.Fragment>
               <Settings2 className="w-4 h-4 mr-2" /> Customize
-            </>
+            </React.Fragment>
           )}
         </Button>
         <ThemeToggle className="relative top-0 right-0" />
@@ -85,7 +88,7 @@ export function HomePage() {
         {/* Widget Grid */}
         <DraggableGrid items={widgetOrder}>
           {widgetOrder.map((type) => (
-            <SortableWidget key={type} id={type}>
+            <SortableWidget key={`widget-slot-${type}`} id={type}>
               {renderWidget(type)}
             </SortableWidget>
           ))}
