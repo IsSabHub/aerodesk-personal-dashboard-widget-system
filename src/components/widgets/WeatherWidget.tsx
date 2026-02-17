@@ -7,33 +7,33 @@ export function WeatherWidget() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [conditionIndex, setConditionIndex] = useState(0);
   const weatherConditions = useMemo(() => [
-    { 
-      temp: 22, 
-      condition: 'Clear Skies', 
-      icon: Sun, 
-      color: 'from-yellow-400 to-orange-500', 
-      glow: 'bg-yellow-500/20' 
+    {
+      temp: 22,
+      condition: 'Clear Skies',
+      icon: Sun,
+      color: 'from-yellow-400 to-orange-500',
+      glow: 'bg-yellow-500/20'
     },
-    { 
-      temp: 18, 
-      condition: 'Overcast', 
-      icon: Cloud, 
-      color: 'from-slate-400 to-slate-600', 
-      glow: 'bg-slate-500/20' 
+    {
+      temp: 18,
+      condition: 'Overcast',
+      icon: Cloud,
+      color: 'from-slate-400 to-slate-600',
+      glow: 'bg-slate-500/20'
     },
-    { 
-      temp: 16, 
-      condition: 'Rainy', 
-      icon: CloudRain, 
-      color: 'from-blue-400 to-indigo-600', 
-      glow: 'bg-blue-500/20' 
+    {
+      temp: 16,
+      condition: 'Rainy',
+      icon: CloudRain,
+      color: 'from-blue-400 to-indigo-600',
+      glow: 'bg-blue-500/20'
     },
-    { 
-      temp: 15, 
-      condition: 'Thunderstorm', 
-      icon: CloudLightning, 
-      color: 'from-purple-500 to-indigo-800', 
-      glow: 'bg-purple-500/20' 
+    {
+      temp: 15,
+      condition: 'Thunderstorm',
+      icon: CloudLightning,
+      color: 'from-purple-500 to-indigo-800',
+      glow: 'bg-purple-500/20'
     }
   ], []);
   useEffect(() => {
@@ -42,7 +42,7 @@ export function WeatherWidget() {
       setConditionIndex(prev => (prev + 1) % weatherConditions.length);
     }, 60000);
     return () => clearInterval(interval);
-  }, [weatherConditions]);
+  }, [weatherConditions.length]);
   const current = weatherConditions[conditionIndex];
   return (
     <WidgetCard
@@ -77,7 +77,7 @@ export function WeatherWidget() {
               "relative bg-gradient-to-br p-4 rounded-3xl shadow-xl transform hover:scale-110 transition-all duration-500",
               current.color
             )}>
-              <current.icon className="w-8 h-8 text-white animate-float" />
+              {React.createElement(current.icon, { className: "w-8 h-8 text-white animate-float" })}
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ export function WeatherWidget() {
               <span className="text-[10px] text-white/30 uppercase mb-2 font-black tracking-widest group-hover/forecast:text-white/50 transition-colors">
                 {f.day}
               </span>
-              <f.icon className="w-5 h-5 text-white/60 mb-2 group-hover/forecast:text-white group-hover/forecast:scale-110 transition-all" />
+              {React.createElement(f.icon, { className: "w-5 h-5 text-white/60 mb-2 group-hover/forecast:text-white group-hover/forecast:scale-110 transition-all" })}
               <span className="text-sm text-white font-bold">{f.temp}°</span>
             </div>
           ))}

@@ -25,7 +25,7 @@ export function QuickActionsWidget() {
             )}
           >
             <div className={cn("p-3 rounded-2xl transition-transform duration-300 group-hover:scale-110", action.bg, action.color)}>
-              <action.icon className="w-5 h-5" />
+              {React.createElement(action.icon, { className: "w-5 h-5" })}
             </div>
             <span className="text-[10px] font-bold text-white/50 group-hover:text-white uppercase tracking-widest transition-colors">
               {action.label}
