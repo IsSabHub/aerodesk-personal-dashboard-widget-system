@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import {
   DndContext,
   closestCenter,
@@ -33,21 +33,16 @@ export function DraggableGrid({ children, items }: DraggableGridProps) {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const oldIndex = items.indexOf(active.id as WidgetType);
       const newIndex = items.indexOf(over.id as WidgetType);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newOrder = arrayMove(items, oldIndex, newIndex);
-        setWidgetOrder(newOrder);
-        // Defer saving to avoid state updates during render cycles
-        setTimeout(() => {
-          saveSettings();
-        }, 0);
-      }
+      const newOrder = arrayMove(items, oldIndex, newIndex);
+      setWidgetOrder(newOrder);
+      saveSettings();
     }
-  }, [items, setWidgetOrder, saveSettings]);
+  }
   return (
     <DndContext
       sensors={sensors}

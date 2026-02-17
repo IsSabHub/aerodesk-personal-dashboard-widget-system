@@ -3,22 +3,24 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
 }
-
-// Minimal real-world chat example types (shared by frontend and worker)
+export type WidgetType = 'weather' | 'calendar' | 'stocks' | 'news';
+export interface DashboardConfig {
+  id: string; // userId
+  widgetOrder: WidgetType[];
+  updatedAt: number;
+}
 export interface User {
   id: string;
   name: string;
 }
-
 export interface Chat {
   id: string;
   title: string;
 }
-
 export interface ChatMessage {
   id: string;
   chatId: string;
   userId: string;
   text: string;
-  ts: number; // epoch millis
+  ts: number;
 }
