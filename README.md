@@ -2,7 +2,7 @@
 
 A production-ready full-stack application template powered by Cloudflare Workers. Features a React frontend with shadcn/ui, Hono-based API backend, and Durable Objects for scalable, stateful entities like users and chat boards.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/IsSabHub/aerodesk-personal-dashboard-widget-system)
 
 ## ✨ Key Features
 
@@ -90,7 +90,7 @@ bun deploy
 
 This builds the frontend (`dist/`), bundles the worker, and deploys to your Cloudflare account.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/IsSabHub/aerodesk-personal-dashboard-widget-system)
 
 ### Custom Domain
 ```bash
